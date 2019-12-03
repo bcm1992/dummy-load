@@ -19,7 +19,7 @@
 // Package main implements a client for Greeter service.
 package main
 
-import (
+import (2
 	"context"
 	"log"
 	"os"
@@ -32,7 +32,7 @@ import (
 
 const (
 	//address     = "localhost:50051"
-	address     = "localhost	:50051"
+	address     = "localhost:50051"
 	defaultName = "world"
 	iterations  = 100
 	num_thraeds = 10
