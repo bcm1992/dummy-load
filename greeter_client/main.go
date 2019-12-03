@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	address     = "localhost:50051"
+	address     = "10.0.0.2:50051"
 	defaultName = "world"
 	iterations  = 100
 	num_thraeds = 10
