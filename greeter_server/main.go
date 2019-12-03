@@ -30,7 +30,10 @@ import (
 	"strconv"
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
-	//pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	"net/http"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/stats/view"
+	"contrib.go.opencensus.io/exporter/prometheus"
 )
 
 const (
@@ -55,9 +58,30 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+
+	pe, err := prometheus.NewExporter(prometheus.Options{
+    Namespace: "demo",
+  })
+	if err != nil {
+		log.Fatalf("Failed to create Prometheus exporter: %v", err)
+	} 	else { log.Printf("Prometheus exporter has started.") }
+	// start prometheous expoter
+	go func() {
+		mux := http.NewServeMux()
+		mux.Handle("/metrics", pe)
+		if err := http.ListenAndServe(":8123", mux); err != nil {
+			log.Fatalf("Failed to run Prometheus /metrics endpoint: %v", err)
+		}
+	}()
+	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
+		log.Fatalf("Failed to register ocgrpc server views: %v", err)
+	}
+	s := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+	//s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &server{})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
-	}
+	}	else { log.Printf("gRPC listener has started.") }
+
+
 }

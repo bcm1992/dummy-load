@@ -32,7 +32,7 @@ import (
 
 const (
 	//address     = "localhost:50051"
-	address     = "192.168.0.1:50051"
+	address     = "localhost	:50051"
 	defaultName = "world"
 	iterations  = 100
 	num_thraeds = 10
