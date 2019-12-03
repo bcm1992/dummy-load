@@ -18,7 +18,6 @@ WORKDIR /
 # Copy the source from the current directory to the Working Directory inside the container
 COPY greeter_server greeter_server
 COPY greeter_client greeter_client
-COPY helloworld helloworld
 
 # Build the Go app
 WORKDIR /greeter_server
