@@ -27,42 +27,38 @@ import (
 	"strconv"
 	"google.golang.org/grpc"
 	pb "google.golang.org/grpc/examples/helloworld/helloworld"
-	//"google.golang.org/grpc/examples/helloworld/helloworld"
+	"io/ioutil"
+	"path/filepath"
+  "gopkg.in/yaml.v2"
 )
+
 
 const (
 	//address     = "localhost:50051"
-	address     = "localhost:50051"
-	defaultName = "world"
-	iterations  = 100
-	num_thraeds = 10
+	//defaultName = "world"
+	//iterations  = 100
+	//numThraeds = 10
+	configFile    = "../config.yaml"
+	maxRetries      = 10
 )
 
-/*
-func main() {
-	// Set up a connection to the server.
-	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	c := pb.NewGreeterClient(conn)
 
-	// Contact the server and print out its response.
-	name := defaultName
-	if len(os.Args) > 1 {
-		name = os.Args[1]
+func getConfig(configFile string) map[string]interface{}{
+	log.Printf("Reading...%v\n", configFile)
+	var config map[string]interface{}
+	filename, _ := filepath.Abs("../config.yaml")
+	yamlFile, err := ioutil.ReadFile(filename)
+  if err != nil {
+    log.Fatalf("Error: %v\n",err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
-	defer cancel()
-	r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	err = yaml.Unmarshal(yamlFile, &config)
 	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+		log.Fatalf("Error: %v\n",err)
 	}
-	log.Printf("Greeting: %s", r.GetMessage())
+	return config
 }
-*/
-func sendMessage(thread_name string, iterations int, finished chan bool) {
+
+func sendMessage(thread_name string, address string, iterations int, defaultName string, finished chan bool) {
 	// Set up a connection to the server.
 	conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
@@ -74,26 +70,38 @@ func sendMessage(thread_name string, iterations int, finished chan bool) {
 	if len(os.Args) > 1 {
 		name = os.Args[1]
 	}
-
 	// Contact the server and print out its response.
-	for i:=0; i < iterations ;i++{
+	var counter, retry int = 0, 0;
+	for {
+		counter++
   	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
 	  defer cancel()
 	  r, err := c.SayHello(ctx, &pb.HelloRequest{Name: name})
 	  if err != nil {
-			//log.Fatalf("could not greet: %v", err)
 			log.Printf("could not greet: %v", err)
+			retry++
+		} else {
+			log.Printf("Greeting: %s", r.GetMessage())
+			retry=0
 	  }
-	  log.Printf("Greeting: %s", r.GetMessage())
-  }
+		if iterations > 0 && iterations < counter  { break }
+		if retry > maxRetries {
+			log.Fatalf("Too many retries, quit...")
+		}
+	}
   finished <- true
 }
 
 func main() {
 	log.Printf("Starting...")
+	config := getConfig(configFile)
+	address := config["client"].(map[interface{}]interface{})["address"].(string)
+	iterations := config["client"].(map[interface{}]interface{})["iterations"].(int)
+	defaultName := config["client"].(map[interface{}]interface{})["defaultName"].(string)
+	numThraeds := config["client"].(map[interface{}]interface{})["numThraeds"].(int)
 	finished := make(chan bool)
-  for i := 0; i < num_thraeds; i++{
-    go sendMessage("Thread" + strconv.Itoa(i), iterations, finished)
+  for i := 0 ; i < numThraeds; i++ {
+    go sendMessage("Thread" + strconv.Itoa(i), address, iterations, defaultName, finished)
 	}
 	<- finished
 	log.Printf("Done...")

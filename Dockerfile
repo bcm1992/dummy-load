@@ -1,6 +1,5 @@
 # Start from the latest golang base image
 FROM golang:latest
-
 ENV GO111MODULE=on
 
 # Add Maintainer Info
@@ -8,7 +7,7 @@ LABEL maintainer="Jun Makino <jun.makino@gmail.com>"
 
 # Set the Current Working Directory inside the container
 WORKDIR /
-
+COPY config.yaml config.yaml
 # Copy go mod and sum files
 #COPY go.mod go.sum ./
 
@@ -30,3 +29,6 @@ EXPOSE 50051
 
 # Command to run the executable
 #CMD ["./greeter_server"]
+
+# Back to root dir
+WORKDIR /

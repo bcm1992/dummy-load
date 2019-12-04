@@ -1,0 +1,10 @@
+server:
+  port: 50051
+  waitMean: 0.0
+  waitStd:  5.0
+  exporterPort: 8181
+client:
+  iterations: 100
+  numThraeds: 5
+  defaultName: world
+  address: localhost:50051
