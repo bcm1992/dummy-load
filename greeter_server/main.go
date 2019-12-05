@@ -55,9 +55,9 @@ var waitMean, waitStd, waits float64
 
 
 func getConfig(configFile string) map[string]interface{}{
-	log.Printf("Reading...%v\n", configFile)
+	log.Printf("Reading %v...\n", configFile)
 	var config map[string]interface{}
-	filename, _ := filepath.Abs("../config.yaml")
+	filename, _ := filepath.Abs(configFile)
 	yamlFile, err := ioutil.ReadFile(filename)
   if err != nil {
     log.Fatalf("Error: %v\n",err)
