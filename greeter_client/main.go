@@ -38,7 +38,7 @@ const (
 	//defaultName = "world"
 	//iterations  = 100
 	//numThraeds = 10
-	configFile    = "../config.yaml"
+	configFile    = "./config/config.yaml"
 	maxRetries      = 10
 )
 

@@ -41,7 +41,7 @@ import (
 
 const (
 	//port = ":50051"
-	configFile    = "../config.yaml"
+	configFile    = "./config/config.yaml"
 )
 
 

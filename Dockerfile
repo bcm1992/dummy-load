@@ -6,8 +6,8 @@ ENV GO111MODULE=on
 LABEL maintainer="Jun Makino <jun.makino@gmail.com>"
 
 # Set the Current Working Directory inside the container
-WORKDIR /
-COPY config.yaml config.yaml
+WORKDIR /config
+COPY config/config.yaml config.yaml
 # Copy go mod and sum files
 #COPY go.mod go.sum ./
 
@@ -15,6 +15,7 @@ COPY config.yaml config.yaml
 #RUN go mod download
 
 # Copy the source from the current directory to the Working Directory inside the container
+WORKDIR /
 COPY greeter_server greeter_server
 COPY greeter_client greeter_client
 
